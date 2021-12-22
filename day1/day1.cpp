@@ -30,7 +30,7 @@ try
     {
         int floor{};
 
-        for(int i=0;i<realData.size();i++)
+        for(auto i=0u;i<realData.size();i++)
         {
             floor += realData[i]=='(' ? 1 : -1;
 
