@@ -20,6 +20,11 @@ public:
         return std::chrono::duration_cast<std::chrono::seconds>(Clock::now()-start).count();
     }
 
+    auto milliseconds()
+    {
+        return std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now()-start).count();
+    }
+
 private:
 
     Clock::time_point       start;
