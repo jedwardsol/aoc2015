@@ -48,7 +48,6 @@ struct Wire
 
     uint16_t    value(Circuit &circuit)
     {
-
         auto evaluator = overload
         {                         
             [&](uint16_t           value) -> uint16_t { return value;},
@@ -93,7 +92,6 @@ struct Wire
         type=Type::Cached;
         inputs[0]=result;
         return result;
-
     }
 };
 
@@ -223,15 +221,24 @@ try
 {
 //    test();
 
-    Circuit         circuit;
+    Circuit         circuit1;
     std::string     line;
     
     while(std::getline(realData,line))
     {
-        circuit.insert(parseLine(line));
+        circuit1.insert(parseLine(line));
     }
 
-    std::cout << std::format("Part 1 : {}\n", circuit["a"].value(circuit));
+    Circuit     circuit2{circuit1};
+
+    auto part1 = circuit1["a"].value(circuit1);
+    std::cout << std::format("Part 1 : {}\n", part1);
+
+    circuit2["b"].type      = Wire::Type::Plain;
+    circuit2["b"].inputs[0] = part1;
+
+    auto part2 = circuit2["a"].value(circuit2);
+    std::cout << std::format("Part 2 : {}\n", part2);
 
     return 0;
 }
