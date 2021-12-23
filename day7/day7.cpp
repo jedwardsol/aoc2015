@@ -26,7 +26,6 @@ using Circuit = std::map<std::string,Wire>;
 
 template<class... Ts> struct overload : Ts... { using Ts::operator()...; };
 
-
 struct Wire
 {
     enum class Type
@@ -101,9 +100,8 @@ struct Wire
 
 auto tokenise(std::string const &line)
 {
-    std::istringstream  stream{line};
-    std::string         token;
-
+    std::istringstream          stream{line};
+    std::string                 token;
     std::vector<std::string>    tokens;
 
     while(stream>>token)
@@ -139,7 +137,6 @@ auto parseLine(std::string const &line)
     assert(tokens.back()=="->");
     tokens.pop_back();
 
-
     switch(tokens.size())
     {
     case 1:
@@ -148,20 +145,15 @@ auto parseLine(std::string const &line)
         break;
 
     case 2:
-        
         if(tokens[0] == "NOT")
         {
             wire.type       = Wire::Type::Not;
             wire.inputs[0]  = parseInput(tokens[1]);
         }
-        else
-        {
-            throw_runtime_error("unknown wire" + line);
-        }
         break;
 
     case 3:
-        
+       
         if(tokens[1] == "AND")
         {
             wire.type       = Wire::Type::And;
@@ -178,49 +170,21 @@ auto parseLine(std::string const &line)
         {
             wire.type       = Wire::Type::RShift;
         }
-        else
-        {
-            throw_runtime_error("unknown wire" + line);
-        }
 
         wire.inputs[0]  = parseInput(tokens[0]);
         wire.inputs[1]  = parseInput(tokens[2]);
         break;
-
-    default:
-        throw_runtime_error("unknown wire" + line);
     }
+
+    assert(wire.type != Wire::Type::Invalid);
 
     return std::make_pair(wire.name,wire);    
 }
 
 
-
-void test()
-{
-    Circuit         circuit;
-    std::string     line;
-    
-    while(std::getline(testData,line))
-    {
-        circuit.insert(parseLine(line));
-    }
-
-    std::cout << std::format("test x : {}\n", circuit["x"].value(circuit));
-    std::cout << std::format("test y : {}\n", circuit["y"].value(circuit));
-    std::cout << std::format("test d : {}\n", circuit["d"].value(circuit));
-    std::cout << std::format("test e : {}\n", circuit["e"].value(circuit));
-    std::cout << std::format("test f : {}\n", circuit["f"].value(circuit));
-    std::cout << std::format("test g : {}\n", circuit["g"].value(circuit));
-    std::cout << std::format("test h : {}\n", circuit["h"].value(circuit));
-    std::cout << std::format("test i : {}\n", circuit["i"].value(circuit));
-}
-
 int main()
 try
 {
-//    test();
-
     Circuit         circuit1;
     std::string     line;
     
@@ -230,6 +194,7 @@ try
     }
 
     Circuit     circuit2{circuit1};
+
 
     auto part1 = circuit1["a"].value(circuit1);
     std::cout << std::format("Part 1 : {}\n", part1);
