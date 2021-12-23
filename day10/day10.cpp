@@ -59,7 +59,7 @@ try
     auto s = input;
 
     // 50 is small enough to just do  (7 milliseconds)
-    // 75 takes 7 seconds.
+    // 75 takes 7 seconds and is 2,705,156,398
 
     for(int i=0;i<76;i++)
     {
