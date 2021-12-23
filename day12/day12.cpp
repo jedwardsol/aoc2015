@@ -42,6 +42,25 @@ boost::json::value loadFile( )
 }
 
 
+bool isRed(boost::json::value const &object)
+{
+    for(auto &element : object.get_object())
+    {
+        if(element.value().kind()==boost::json::kind::string)
+        {
+            auto const &string = element.value().as_string();
+
+            if(string=="red")
+            {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+
 
 int64_t sumNumbers(boost::json::value const &value, bool ignoreReds)
 {
@@ -51,9 +70,17 @@ int64_t sumNumbers(boost::json::value const &value, bool ignoreReds)
     {
     case boost::json::kind::object:
     {
-        for(auto &element : value.get_object())
+        if(   ignoreReds
+           && isRed(value.get_object()))
         {
-            sum += sumNumbers( element.value(), ignoreReds);
+            // ignore
+        }
+        else
+        {
+            for(auto &element : value.get_object())
+            {
+                sum += sumNumbers( element.value(), ignoreReds);
+            }
         }
 
         break;
