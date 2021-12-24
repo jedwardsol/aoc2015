@@ -23,7 +23,7 @@ struct Aunt
 {
     std::map<std::string,int>   properties; // name -> count
 
-    bool    matches(Aunt  &other)
+    bool    matches1(Aunt  &other)
     {
         for(auto &[name, number] : properties)
         {
@@ -37,6 +37,48 @@ struct Aunt
 
         return true;
     }
+
+    bool    matches2(Aunt  &other)
+    {
+        for(auto &[name, number] : properties)
+        {
+            assert(other.properties.contains(name));
+
+            if(   name == "cats"
+               || name == "trees")
+            {
+                // other.properties[name] is the lower limit
+                
+                if(other.properties[name] >= number)
+                {
+                    return false;
+                }
+            }
+            else if(   name=="pomeranians"
+                    || name=="goldfish")
+            {
+                // other.properties[name] is the upper limit
+                
+                if(other.properties[name] <= number)
+                {
+                    return false;
+                }
+
+            }
+            else
+            {
+                if(other.properties[name] != number)
+                {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+
+
 
 };
 
@@ -108,11 +150,18 @@ try
 
     for(auto &[number, aunt] : aunts)
     {
-        if(aunt.matches(gifter))
+        if(aunt.matches1(gifter))
         {
             std::cout << "Part 1 : " << number << "\n";
         }
+
+        if(aunt.matches2(gifter))
+        {
+            std::cout << "Part 2 : " << number << "\n";
+        }
     }
+
+
 
 
 
