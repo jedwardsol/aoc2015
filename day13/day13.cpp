@@ -150,8 +150,6 @@ auto solve()
 
     } while(std::next_permutation(arrangement.begin(),arrangement.end()));
 
-    assert(count==8*7*6*5*4*3*2); 
-
     return std::make_pair(max,sw.milliseconds());
 }
 
