@@ -20,10 +20,17 @@ using namespace std::literals;
 
 extern std::istringstream realData;
 
+struct Recipe
+{
+    std::string original;
+    std::string replacement;
+};
+
+
 auto readData()
 {
-    std::multimap<std::string, std::string>  replacements;
-    std::string                              molecule;
+    std::vector<Recipe>    replacements;
+    std::string            molecule;
 
     std::string line;
 
@@ -35,7 +42,7 @@ auto readData()
         auto original       = line.substr(0,space);
         auto replacement    = line.substr(space+4);
 
-        replacements.emplace(original,replacement);
+        replacements.emplace_back(original,replacement);
 
     }
 
@@ -47,8 +54,8 @@ auto readData()
 }
 
 
-auto countPossibilities(std::multimap<std::string, std::string>  const &replacements,
-                        std::string  const                             &molecule)
+auto countPossibilities(std::vector<Recipe>     const &replacements,
+                        std::string             const &molecule)
 {
     std::set<std::string>   distinctMolecules;
 
@@ -70,6 +77,42 @@ auto countPossibilities(std::multimap<std::string, std::string>  const &replacem
 }
 
 
+
+void part2_greedy(std::vector<Recipe>     const &replacements,
+                  std::string             molecule)
+{
+    int count{};
+
+    while(molecule != "e")
+    {
+        bool shortened{false};
+
+        for(auto  &replacement : replacements)
+        {
+            size_t  pos;
+
+            while((pos = molecule.find(replacement.replacement)) != molecule.npos)
+            {
+                molecule.replace(pos, replacement.replacement.size(), replacement.original);
+                count++;
+                shortened=true;
+            }
+
+        }
+
+        if(!shortened)
+        {
+            std::cout << "Greedy didn't work";
+            return;
+        }
+    }
+
+    std::cout << "Part 2 : " << count << "\n";
+
+}
+
+
+
 int main()
 try
 {
@@ -77,7 +120,18 @@ try
 
     auto part1=countPossibilities(replacements,molecule);
 
-    std::cout  << std::format("Part 1 : {} ", part1);
+    std::cout  << std::format("Part 1 : {}\n", part1);
+
+
+    auto length=[](auto const &lhs, auto const &rhs)
+    {
+        return rhs.replacement.size() < lhs.replacement.size();
+    };
+
+    std::ranges::sort(replacements, length);
+
+
+    part2_greedy(replacements, molecule);
 
     return 0;
 }
