@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <set>
 
 #include <iostream>
 #include <sstream>
@@ -31,10 +32,10 @@ auto readData()
     {
         auto space=line.find(' ');
 
-        auto source = line.substr(0,space);
-        auto dest   = line.substr(space+4);
+        auto original       = line.substr(0,space);
+        auto replacement    = line.substr(space+4);
 
-        replacements.emplace(source,dest);
+        replacements.emplace(original,replacement);
 
     }
 
@@ -44,11 +45,39 @@ auto readData()
 
     return std::make_pair(replacements,molecule);
 }
+
+
+auto countPossibilities(std::multimap<std::string, std::string>  const &replacements,
+                        std::string  const                             &molecule)
+{
+    std::set<std::string>   distinctMolecules;
+
+    for(auto &[original, replacement] : replacements)
+    {
+        size_t walk{};
+
+        while((walk = molecule.find(original,walk+1)) != molecule.npos)
+        {
+            auto newMolecule{molecule};
+
+            newMolecule.replace(walk, original.size(), replacement);
+            
+            distinctMolecules.insert(newMolecule);
+        }
+    }
+
+    return distinctMolecules.size();
+}
+
+
 int main()
 try
 {
     auto [replacements, molecule] = readData();
 
+    auto part1=countPossibilities(replacements,molecule);
+
+    std::cout  << std::format("Part 1 : {} ", part1);
 
     return 0;
 }
