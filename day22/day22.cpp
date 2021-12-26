@@ -4,6 +4,7 @@
 #include <array>
 #include <vector>
 #include <deque>
+#include <random>
 
 #include <iostream>
 #include <sstream>
@@ -15,6 +16,8 @@
 
 using namespace std::literals;
 #include "include/thrower.h"
+
+
 
 
 struct Boss
@@ -52,6 +55,21 @@ struct Wizard
 };
 
 
+auto randomSpells()
+{
+    static std::mt19937                         rng{std::random_device{}()};
+    static std::uniform_int_distribution<int>   range{0,4};
+    std::deque<Spell>                           spells;
+
+
+    for(int i=0;i<100;i++)
+    {
+        spells.emplace_back(static_cast<Spell>(range(rng)));
+    }
+
+    return spells;
+}
+
 
 void applyEffects(Wizard &you, Boss &boss)
 {
@@ -79,7 +97,7 @@ void applyEffects(Wizard &you, Boss &boss)
 }
 
 
-bool fight(Wizard you,  Boss boss)
+bool fight(Wizard you,  Boss boss, int &manaSpent, int hardMode)
 {
     while(    you.hitPoints  > 0
           &&  boss.hitPoints > 0)
@@ -89,6 +107,17 @@ bool fight(Wizard you,  Boss boss)
 
         if(you.hitPoints > 0)
         {
+            if(hardMode)
+            {
+                you.hitPoints--;
+
+                if(you.hitPoints < 1)
+                {
+                    return false;
+                }
+            }
+
+
             applyEffects(you,boss);
 
             if(boss.hitPoints < 1)
@@ -101,11 +130,15 @@ bool fight(Wizard you,  Boss boss)
             {
             case Spell::MagicMissile:
                 you.mana        -= 53;
+                manaSpent       += 53;
+
                 boss.hitPoints  -= 4;
                 break;
 
             case Spell::Drain:
                 you.mana        -= 73;
+                manaSpent       += 73;
+
                 boss.hitPoints  -= 2;
                 you.hitPoints   +=2;
                
@@ -113,6 +146,7 @@ bool fight(Wizard you,  Boss boss)
 
             case Spell::Shield:
                 you.mana        -= 113;
+                manaSpent       += 113;
                 
                 if(you.shieldRemaining == 0)
                 {
@@ -122,6 +156,7 @@ bool fight(Wizard you,  Boss boss)
 
             case Spell::Poison:
                 you.mana        -= 173;
+                manaSpent       += 173;
                 
                 if(you.poisonRemaining == 0)
                 {
@@ -131,6 +166,7 @@ bool fight(Wizard you,  Boss boss)
 
             case Spell::Recharge:
                 you.mana        -= 229;
+                manaSpent       += 229;
                 
                 if(you.rechargeRemaining == 0)
                 {
@@ -168,18 +204,70 @@ bool fight(Wizard you,  Boss boss)
 }
 
 
+struct WinningSpellList
+{
+    std::deque<Spell>   spells;
+    int                 cost;
+
+    auto operator<=>(WinningSpellList const &other) const noexcept
+    {
+        return cost<=>other.cost;
+    }
+
+};
 
 
 int main()
 try
 {
-    assert( fight( {{Spell::Poison,  Spell::MagicMissile}, 10,250},{13,8}));       // example the player wins 
+    int dummy{};
+    assert( fight( {{Spell::Poison,  Spell::MagicMissile}, 10,250},{13,8},dummy));       // example the player wins 
     assert( fight( {{Spell::Recharge,
                      Spell::Shield, 
                      Spell::Drain, 
                      Spell::Poison,
-                     Spell::MagicMissile},10,250},{14,8}));       // example the player wins 
+                     Spell::MagicMissile},10,250},{14,8},dummy));       // example the player wins 
 
+
+    // totally random search finds answer in seconds!
+
+    int minCost=1'000'000;
+
+    while(1)
+    {
+        auto spells = randomSpells();
+
+        Wizard      wizard { spells };
+        int         spellCost{};
+        if( fight(wizard, initialBoss, spellCost, true))
+        {
+            if(spellCost < minCost)
+            {
+                minCost=spellCost;
+                std::cout << minCost << "\n";
+            }
+        }
+    }
+
+
+    // no need to continue the genetic algorithm
+/*
+    std::vector<WinningSpellList>   winningLists;
+
+    while(winningLists.size() < 1000)
+    {
+        auto spells = randomSpells();
+
+        Wizard      wizard { spells };
+        int         spellCost{};
+        if( fight(wizard, initialBoss, spellCost))
+        {
+            winningLists.emplace_back(spells, spellCost);
+        }
+    }
+    
+    std::ranges::sort(winningLists, {}, &WinningSpellList::cost);
+*/
 
     return 0;
 }
