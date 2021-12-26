@@ -221,12 +221,12 @@ int main()
 try
 {
     int dummy{};
-    assert( fight( {{Spell::Poison,  Spell::MagicMissile}, 10,250},{13,8},dummy));       // example the player wins 
+    assert( fight( {{Spell::Poison,  Spell::MagicMissile}, 10,250},{13,8},dummy,false));       // example the player wins 
     assert( fight( {{Spell::Recharge,
                      Spell::Shield, 
                      Spell::Drain, 
                      Spell::Poison,
-                     Spell::MagicMissile},10,250},{14,8},dummy));       // example the player wins 
+                     Spell::MagicMissile},10,250},{14,8},dummy,false));       // example the player wins 
 
 
     // totally random search finds answer in seconds!
